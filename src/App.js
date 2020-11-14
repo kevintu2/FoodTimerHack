@@ -61,6 +61,14 @@ class App extends Component {
     const itemRef = firebase.database().ref(`/items/${itemId}`);
     itemRef.remove();
   }
+  alertSpoil() {
+    let current = Date.now();
+    for (let item in inFridge) {
+      if (item.ExpDate-current <86400000) {
+        alert(item.Food)
+      }
+    }
+  }
   render() {
     return (
       <div className="App">
