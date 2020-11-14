@@ -64,7 +64,7 @@ class App extends Component {
   alertSpoil() {
     let current = Date.now();
     for (let item in inFridge) {
-      if (item.ExpDate-current <86400000) {
+      if (item.ExpDate-current < 604800000) {
         alert(item.Food)
       }
     }
