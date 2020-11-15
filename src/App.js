@@ -1,17 +1,28 @@
 
 import './App.css';
-import Frontpage from './components/frontpage';
+import frontpage from './frontpage';
 import React, { Component } from 'react';
 import firebase from './components/firebase.js';
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 
-class App extends Component {
+// import { Route, BrowserRouter as Router, Switch, Link } from "react-router-dom";
+// import ReactDOM from "react-dom";
+
+
+
+
+
+class App extends React.Component {
+
   constructor() {
     super();
     this.state = {
       quantity: '',
       foodname: '',
       expDate: '',
-      inFridge: []
+      inFridge: [],
+      expiring: []
+
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -27,7 +38,7 @@ class App extends Component {
     const item = {
       Quantity: this.state.quantity,
       Food: this.state.foodname,
-      ExpDate: this.state.expDate
+      ExpDate: this.state.expDate,
 
 
     }
@@ -35,7 +46,7 @@ class App extends Component {
     this.setState({
       quantity: '',
       foodname: '',
-      expDate: ''
+      expDate: '',
     });
   }
   componentDidMount() {
@@ -49,28 +60,38 @@ class App extends Component {
           Quantity: items[item].Quantity,
           Food: items[item].Food,
           ExpDate: items[item].ExpDate,
-        });
+
+
+        })
+
 
       }
       this.setState({
         inFridge: newState
       });
     });
+
+
   }
   removeItem(itemId) {
     const itemRef = firebase.database().ref(`/items/${itemId}`);
     itemRef.remove();
   }
   alertSpoil() {
-    let current = Date.now();
-    for (let item in inFridge) {
-      if (item.ExpDate-current < 604800000) {
-        alert(item.Food)
+    this.state.expiring = []
+    for (let item = 0; item < this.state.inFridge.length; item++) {
+      if ((Date.parse(this.state.inFridge[item].ExpDate) - Date.now()) < 172800000) {
+        this.state.expiring.push(this.state.inFridge[item].Food)
       }
     }
+    console.log(this.state.expiring)
+
   }
+
+
   render() {
     return (
+
       <div className="App">
 
         <header>
@@ -87,6 +108,21 @@ class App extends Component {
               <input type="date" name="expDate" placeholder="Enter Expiration Date" onChange={this.handleChange} value={this.state.expDate} required />
               <button>Add Food</button>
             </form>
+            <Router>
+        <div id="container">
+          <div>
+            <Link to="/">Show Close to Expired!</Link>
+            <Link to="/frontpage">Clear</Link>
+          </div>
+          <Switch>
+            <Route exact path= "/" component={frontpage} />
+            {/* <Route exact path="/" component={App} /> */}
+          </Switch>
+        </div>
+      </Router>
+
+
+            {/* {() => this.alertSpoil()} */}
           </section>
           <section className='display-item'>
             <div className='wrapper'>
@@ -106,7 +142,7 @@ class App extends Component {
                     <p>Expires on: {fooditem.ExpDate}</p>
                     <button onClick={() => this.removeItem(fooditem.id)}>Remove Food </button>
                   </li>
-                  
+
                 )
               })}
             </ul>
@@ -115,7 +151,6 @@ class App extends Component {
 
 
       </div >
-
     );
   }
 
